@@ -58,6 +58,16 @@ void FlyByWireInterface::disconnect() {
 bool FlyByWireInterface::update(double sampleTime) {
   bool result = true;
 
+  // check delta time for performance issues
+  if (sampleTime > MAX_ACCEPTABLE_SAMPLE_TIME && lowPerformanceCycleCounter < LOW_PERFORMANCE_CYCLE_THRESHOLD) {
+    lowPerformanceCycleCounter++;
+  } else if (lowPerformanceCycleCounter > 0) {
+    lowPerformanceCycleCounter--;
+  }
+  if (lowPerformanceCycleCounter >= LOW_PERFORMANCE_CYCLE_THRESHOLD) {
+    cout << "WASM: WARNING Performance issues detected, at least stable 17 fps or more are needed!" << endl;
+  }
+
   // get data & inputs
   result &= readDataAndLocalVariables(sampleTime);
 
